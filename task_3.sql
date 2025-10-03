@@ -98,7 +98,14 @@ category_totals as (
 	from rental_hours
 	group by city, category_name
 )
-select city, category_name, total_hours
+(select city, category_name, total_hours
 from category_totals
-where rnk = 1
+where rnk = 1 and city like '%-%'
 order by total_hours desc
+limit 1)
+union 
+(select city, category_name, total_hours
+from category_totals
+where rnk = 1 and city ilike 'a%'
+order by total_hours desc
+limit 1)
