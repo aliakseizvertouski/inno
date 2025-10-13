@@ -6,12 +6,14 @@ join category on category.category_id=film_category.category_id
 group by category.name
 order by (film_count) desc
 
---2
-select count (film_id) as rental_count, actor.first_name, actor.last_name
-from film_actor
-join actor on actor.actor_id=film_actor.actor_id
-group by actor.first_name, actor.last_name
-order by count (film_id) desc
+--2 upd
+select count (rental_id), first_name, last_name
+from rental
+join inventory using (inventory_id)
+join film_actor using (film_id)
+join actor using (actor_id)
+group by first_name, last_name
+order by count desc
 limit 10
 
 
@@ -34,27 +36,16 @@ left join inventory on film.film_id = inventory.film_id
 where inventory.film_id is null
 
 
---5.1
-select film_actor.actor_id, count (category_id) as film_count
-from film_actor
-join film_category on film_category.film_id = film_actor.film_id
-where category_id = 3
-group by film_actor.actor_id 
-order by film_count desc 
-limit 3
-
-
---5.2
-select first_name, last_name, film_count
+--5 upd
+select first_name, last_name, count (film_id)
 from actor
-join (
-	select film_actor.actor_id, count (category_id) as film_count
-	from film_actor
-	join film_category on film_category.film_id = film_actor.film_id
-	where category_id = 3
-	group by film_actor.actor_id 
-) using (actor_id)
-order by film_count desc 
+join film_actor using (actor_id)
+join film using (film_id)
+join film_category using (film_id)
+join category using (category_id)
+where name  = 'Children'
+group by first_name, last_name
+order by count desc
 limit 3
 
 
