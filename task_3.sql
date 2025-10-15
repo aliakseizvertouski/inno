@@ -39,7 +39,8 @@ where inventory.film_id is null
 
 --5upd
 with film_actor_category as (
-	select actor_id, first_name, last_name, count (film_id) as film_count
+	select first_name, last_name, count (film_id) as film_count,
+		dense_rank () over (order by count (film_id) desc) as rnk
 	from actor
 	join film_actor using (actor_id)
 	join film using (film_id)
@@ -49,9 +50,9 @@ with film_actor_category as (
 	group by actor_id, first_name, last_name
 	order by film_count desc
 	)
-select first_name, last_name, film_count,
-	dense_rank () over (order by film_count desc)
+select first_name, last_name, film_count, rnk
 from film_actor_category
+where rnk < 4
 
 --6upd
 select city,
