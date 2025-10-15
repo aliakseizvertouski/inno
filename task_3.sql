@@ -20,7 +20,6 @@ with rental_film_actor as (
 select first_name, last_name
 from rental_film_actor
 
-
 --3
 select SUM (amount), name
 from payment
@@ -32,13 +31,11 @@ group by category_id, name
 order by sum desc 
 limit 1
 
-
 --4
 select title --, film.film_id as film_film_id, inventory.film_id as inventory_film_id
 from film
 left join inventory on film.film_id = inventory.film_id
 where inventory.film_id is null
-
 
 --5upd
 with film_actor_category as (
@@ -71,7 +68,6 @@ join address using (address_id)
 join city using (city_id)
 group by city
 order by inactive_customers desc
-
 
 --7
 with rental_hours as (
