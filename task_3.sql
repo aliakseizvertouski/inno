@@ -1,12 +1,12 @@
 --1
 select category.name, count (*) as film_count
-from film_category 
-join film on film.film_id=film_category.film_id
+from film_category
 join category on category.category_id=film_category.category_id
-group by category.name
+group by category.category_id
 order by (film_count) desc
 
---2 upd
+
+--2
 with rental_film_actor as (
 	select count (rental_id), first_name, last_name
 	from rental
@@ -19,6 +19,7 @@ with rental_film_actor as (
 	)
 select first_name, last_name
 from rental_film_actor
+
 
 --3
 with rental_film as (
@@ -35,13 +36,15 @@ with rental_film as (
 select name
 from rental_film
 
+
 --4
 select title
 from film
 left join inventory on film.film_id = inventory.film_id
 where inventory.film_id is null
 
---5upd
+
+--5
 with film_actor_category as (
 	select first_name, last_name, count (film_id) as film_count,
 		dense_rank () over (order by count (film_id) desc) as rnk
@@ -54,11 +57,11 @@ with film_actor_category as (
 	group by actor_id, first_name, last_name
 	order by film_count desc
 	)
-select first_name, last_name --, film_count, rnk
+select first_name, last_name
 from film_actor_category
 where rnk < 4
 
---6upd
+--6
 select city,
 	count (case 
 		when active = 1 then null
@@ -71,8 +74,9 @@ select city,
 from customer
 join address using (address_id)
 join city using (city_id)
-group by city
+group by city_id, city
 order by inactive_customers desc
+
 
 --7
 with rental_hours as (
@@ -92,14 +96,17 @@ category_totals as (
 	from rental_hours
 	group by city, category_name
 )
-(select category_name --, city, total_hours
+(select category_name
 from category_totals
 where rnk = 1 and city like '%-%'
 order by total_hours desc
 limit 1)
 union 
-(select category_name --, city, total_hours
+(select category_name
 from category_totals
 where rnk = 1 and city ilike 'a%'
 order by total_hours desc
 limit 1)
+
+
+
