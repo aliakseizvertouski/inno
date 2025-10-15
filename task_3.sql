@@ -7,14 +7,18 @@ group by category.name
 order by (film_count) desc
 
 --2 upd
-select count (rental_id), first_name, last_name
-from rental
-join inventory using (inventory_id)
-join film_actor using (film_id)
-join actor using (actor_id)
-group by first_name, last_name
-order by count desc
-limit 10
+with rental_film_actor as (
+	select count (rental_id), first_name, last_name
+	from rental
+	join inventory using (inventory_id)
+	join film_actor using (film_id)
+	join actor using (actor_id)
+	group by actor_id, first_name, last_name
+	order by count desc
+	limit 10
+	)
+select first_name, last_name
+from rental_film_actor
 
 
 --3
@@ -36,39 +40,37 @@ left join inventory on film.film_id = inventory.film_id
 where inventory.film_id is null
 
 
---5 upd
-select first_name, last_name, count (film_id)
-from actor
-join film_actor using (actor_id)
-join film using (film_id)
-join film_category using (film_id)
-join category using (category_id)
-where name  = 'Children'
-group by first_name, last_name
-order by count desc
-limit 3
+--5upd
+with film_actor_category as (
+	select actor_id, first_name, last_name, count (film_id) as film_count
+	from actor
+	join film_actor using (actor_id)
+	join film using (film_id)
+	join film_category using (film_id)
+	join category using (category_id)
+	where name  = 'Children'
+	group by actor_id, first_name, last_name
+	order by film_count desc
+	)
+select first_name, last_name, film_count,
+	dense_rank () over (order by film_count desc)
+from film_actor_category
 
-
---6
-select city.city, inactive_customers, active_customers
-from city
-left join (
-	select count (active) as inactive_customers, city.city
-	from customer
-	join address on customer.address_id=address.address_id 
-	join city on address.city_id=city.city_id
-	where active = 0
-	group by city
-) using (city)
-left join (
-	select count (active) as active_customers, city.city
-	from customer
-	join address on customer.address_id=address.address_id 
-	join city on address.city_id=city.city_id
-	where active = 1
-	group by city
-) using (city)
-order by inactive_customers asc
+--6upd
+select city,
+	count (case 
+		when active = 1 then null
+		else active = 1
+	end) as inactive_customers,
+	count (case 
+		when active = 0 then null
+		else active 
+	end) as active_customers
+from customer
+join address using (address_id)
+join city using (city_id)
+group by city
+order by inactive_customers desc
 
 
 --7
