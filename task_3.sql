@@ -32,7 +32,7 @@ order by sum desc
 limit 1
 
 --4
-select title --, film.film_id as film_film_id, inventory.film_id as inventory_film_id
+select title
 from film
 left join inventory on film.film_id = inventory.film_id
 where inventory.film_id is null
