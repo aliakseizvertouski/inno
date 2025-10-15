@@ -21,15 +21,19 @@ select first_name, last_name
 from rental_film_actor
 
 --3
-select SUM (amount), name
-from payment
-join rental using (rental_id)
-join inventory using (inventory_id)
-join film_category using (film_id)
-join category using (category_id)
-group by category_id, name
-order by sum desc 
-limit 1
+with rental_film as (
+	select sum (amount), name
+	from payment
+	join rental using (rental_id)
+	join inventory using (inventory_id)
+	join film_category using (film_id)
+	join category using (category_id)
+	group by category_id, name
+	order by sum desc 
+	limit 1
+	)
+select name
+from rental_film
 
 --4
 select title
@@ -50,7 +54,7 @@ with film_actor_category as (
 	group by actor_id, first_name, last_name
 	order by film_count desc
 	)
-select first_name, last_name, film_count, rnk
+select first_name, last_name --, film_count, rnk
 from film_actor_category
 where rnk < 4
 
@@ -88,13 +92,13 @@ category_totals as (
 	from rental_hours
 	group by city, category_name
 )
-(select city, category_name, total_hours
+(select category_name --, city, total_hours
 from category_totals
 where rnk = 1 and city like '%-%'
 order by total_hours desc
 limit 1)
 union 
-(select city, category_name, total_hours
+(select category_name --, city, total_hours
 from category_totals
 where rnk = 1 and city ilike 'a%'
 order by total_hours desc
