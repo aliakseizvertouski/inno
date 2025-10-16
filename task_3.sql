@@ -3,7 +3,7 @@ select category.name, count (*) as film_count
 from film_category
 join category on category.category_id=film_category.category_id
 group by category.category_id
-order by (film_count) desc
+order by film_count desc
 
 
 --2 upd
@@ -64,13 +64,13 @@ where rnk < 4
 
 --6 upd
 select city, city_id,
-	count (case 
-		when active = 1 then null
-		else active = 1
+	sum (case 
+		when active = 0 then 1
+		else 0
 	end) as inactive_customers,
-	count (case 
-		when active = 0 then null
-		else active 
+	sum (case 
+		when active = 1 then 1
+		else 0 
 	end) as active_customers
 from customer
 join address using (address_id)
@@ -97,13 +97,13 @@ category_totals as (
 	from rental_hours
 	group by city, category_name, city_id
 )
-(select category_name
+(select category_name, city
 from category_totals
 where rnk = 1 and city like '%-%'
 order by total_hours desc
 limit 1)
 union 
-(select category_name
+(select category_name, city
 from category_totals
 where rnk = 1 and city ilike 'a%'
 order by total_hours desc
